@@ -58,7 +58,7 @@ var statesData = {"type":"FeatureCollection","features":[
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
-
+    
     function style(feature) {
         return {
             fillColor: 'green',
@@ -69,47 +69,38 @@ var statesData = {"type":"FeatureCollection","features":[
             fillOpacity: 0.5
         };
     }
-
+    
     var csvData;
-
+    
     d3.csv('data/name_data.csv').then(function(data) {
         csvData = data;
-        addGeoJSONWithPopupData();
+        updateMap(); // Initial map display
     }).catch(function(error) {
         console.error('Error loading CSV data:', error);
     });
-
-    // Add an event listener to the "Update Map" button
+    
+    var geoJsonLayer = L.layerGroup().addTo(map);
+    
     document.getElementById('genderSelect').addEventListener('change', updateMap);
     document.getElementById('yearSelect').addEventListener('change', updateMap);
     
-
     function updateMap() {
-        // Get the selected year and gender from the dropdowns
+        geoJsonLayer.clearLayers(); // Clear the GeoJSON layer group
+    
         var selectedYear = document.getElementById('yearSelect').value;
         var selectedGender = document.getElementById('genderSelect').value;
-
-        // Clear the existing map data
-        map.eachLayer(function (layer) {
-            if (layer != null && layer !== undefined) {
-                map.removeLayer(layer);
-            }
-        });
-
-        // Add the GeoJSON data with the new year and gender filters
+    
         addGeoJSONWithPopupData(selectedYear, selectedGender);
     }
-
+    
     function addGeoJSONWithPopupData(selectedYear, selectedGender) {
         L.geoJson(statesData, {
             style: style,
             onEachFeature: function(feature, layer) {
-                // Filter the CSV data for the selected year, state, and gender
                 var filteredData = csvData.filter(function(data) {
                     return data.state === feature.properties.name && data.year === selectedYear && data.Gender === selectedGender;
                 });
-
-                // Create the popup content with rank 1, rank 2, and rank 3 data
+    
                 var popupContent = "";
                 if (filteredData.length > 0) {
                     popupContent = `
@@ -121,34 +112,28 @@ var statesData = {"type":"FeatureCollection","features":[
                         Rank 4: ${filteredData[0]['Rank 4']}<br>
                         Rank 5: ${filteredData[0]['Rank 5']}
                     `;
-
-                    // Set the mouse events to change the map styling.
+    
                     layer.on({
-                        // When a user's mouse cursor touches a map feature, the mouseover event calls this function, which makes that feature's opacity change to 90% so that it stands out.
                         mouseover: function(event) {
                             layer = event.target;
                             layer.setStyle({
                                 fillOpacity: 0.9
                             });
                         },
-                        // When the cursor no longer hovers over a map feature (that is, when the mouseout event occurs), the feature's opacity reverts back to 50%.
                         mouseout: function(event) {
                             layer = event.target;
                             layer.setStyle({
                                 fillOpacity: 0.5
                             });
-                        },
-                        // When a feature (state) is clicked, it enlarges to fit the screen.
-                        click: function(event) {
-                            map.fitBounds(event.target.getBounds());
                         }
                     });
-                    // Giving each feature a popup with information that's relevant to it
+    
                     layer.bindPopup(popupContent);
+                    geoJsonLayer.addLayer(layer); // Add the feature to the GeoJSON layer group
                 } else {
                     popupContent = `<strong>${feature.properties.name}</strong><br>No data available for year and gender.`;
                     layer.bindPopup(popupContent);
                 }
             }
-        }).addTo(map);
+        });
     }
