@@ -5,52 +5,75 @@ from sqlalchemy import create_engine, func
 
 from flask import Flask, jsonify
 
+# Create an SQLAlchemy engine to connect to your SQLite database
+engine = create_engine("sqlite:///data/name_db.sqlite")
 
-
-engine = create_engine("sqlite:///data/name_db.sql")
+# Reflect the database tables into SQLAlchemy ORM classes
 Base = automap_base()
-Base.prepare(autoload_with=engine)
-Base.classes.keys()
-# Names = Base.classes.baby_name_data
+Base.prepare(engine, reflect=True)
 
-# session = Session(engine)
-# app = Flask(__name__)
+# Create references to the tables in the database
+BabyNameData = Base.classes.baby_name_data
 
-# #--------------------------------------
-# # Flask Routes
-# #--------------------------------------
-# @app.route("/")
-# def welcome():
-#     """List all available api routes."""
-#     return(
-#         f"Top 5 Baby Names From Each State  :<br/>"
-#         f"All Popular Baby Names From Boys & Girls (1980 - 2022): api/v1.0/all<br/>"
-#         f"Popular Baby Names By year and Gender (1980- 2022): api/v1.0/<year>/<gender> <br/>"
-#     )
-# # Create a route that queries all popular baby names from boys & girls (1980 - 2022) and returns a dictionary.
-# @app.route("/api/v1.0/all")
-# def boys_girls_all():
-#     """list of all popular baby names from boys & girls (1980 - 2022)"""
-#     # Query names from boys & girls
-#     boys_girls = session.query(Names).all()
-#     session.close()
-#     return jsonify(boys_girls)
+# Create a Flask app
+app = Flask(__name__)
 
-# # Create a route that queries all popular baby names for selected year/gender.
-# @app.route("/api/v1.0/<year>/<gender>")
-# def names_filtered(year, gender):
-#     """List of all popular baby names from boys (1980- 2022)"""
-#     # Query names from boys & girls
-#     results = session.query(Names).filter(Names.year == year).filter(Names.Gender == gender).all()
-#     session.close()
-#     return jsonify(results)
+# Create a route to list all available API endpoints
+@app.route("/")
+def welcome():
+    return (
+        "Welcome to the Baby Names API!<br/>"
+        "Available Routes:<br/>"
+        "/api/v1.0/all<br/>"
+        "/api/v1.0/<year>/<gender>"
+    )
 
+# Create a route to get all popular baby names from boys & girls (1980 - 2022)
+@app.route("/api/v1.0/all")
+def boys_girls_all():
+    session = Session(engine)
+    
+    # Query all popular baby names
+    results = session.query(BabyNameData).all()
+    
+    session.close()
+    
+    # Convert the results to a list of dictionaries
+    baby_names_list = []
+    for result in results:
+        baby_names_list.append({
+            "year": result.year,
+            "name": result.name,
+            "gender": result.gender,
+            "count": result.count
+        })
+    
+    return jsonify(baby_names_list)
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
+# Create a route to get popular baby names for a specific year and gender
+@app.route("/api/v1.0/<year>/<gender>")
+def names_filtered(year, gender):
+    session = Session(engine)
+    
+    # Query popular baby names for the specified year and gender
+    results = session.query(BabyNameData).filter_by(year=year, gender=gender).all()
+    
+    session.close()
+    
+    # Convert the results to a list of dictionaries
+    baby_names_list = []
+    for result in results:
+        baby_names_list.append({
+            "year": result.year,
+            "name": result.name,
+            "gender": result.gender,
+            "count": result.count
+        })
+    
+    return jsonify(baby_names_list)
 
-
-
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
 
