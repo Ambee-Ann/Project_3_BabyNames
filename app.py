@@ -44,7 +44,7 @@ def boys_girls_all():
         baby_names_list.append({
             "year": result.year,
             "name": result.name,
-            "gender": result.gender,
+            "Gender": result.gender,
             "count": result.count
         })
     
@@ -66,7 +66,7 @@ def names_filtered(year, gender):
         baby_names_list.append({
             "year": result.year,
             "name": result.name,
-            "gender": result.gender,
+            "Gender": result.gender,
             "count": result.count
         })
     
