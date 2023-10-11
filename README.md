@@ -13,11 +13,11 @@ Our approach began with:
 4. Visualization – Leaflet
 
 Our specific requirements included:
-a. Visualization included Python Flask–powered API, HTML/CSS, JavaScript, & SQLite 
-b. US map of popular baby names included a combination of web scraping on SSA website & Leaflet
-c. Project included one JS library: US state boundaries from us-states.js
-d. Project was powered by a dataset of 4,300 records (1980 – 2022, boy/girl, five names per state, 50 states + DC)
-e. Project included user-driven interactions, such as dropdown & textboxes
+1. Visualization included Python Flask–powered API, HTML/CSS, JavaScript, & SQLite
+2. US map of popular baby names included a combination of web scraping on SSA website & Leaflet
+3. Project included one JS library: US state boundaries from us-states.js (https://gist.github.com/marshallswain/88f377c71aa88aceaf660b157f6d8f46)
+4. Project was powered by a dataset of 4,300 records (1980 – 2022, boy/girl, five names per state, 50 states + DC)
+5. Project included user-driven interactions, such as dropdown & textboxes
 
 
 ![image](https://github.com/Ambee-Ann/Project_3_BabyNames/assets/135548699/706b4580-1d4a-446e-94c2-7daff5ed4c64)
